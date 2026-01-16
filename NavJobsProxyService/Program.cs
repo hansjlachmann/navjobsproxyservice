@@ -1,7 +1,15 @@
-using NavJobsProxyService;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.WindowsServices;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
 
-var host = builder.Build();
-host.Run();
+IHost host = Host.CreateDefaultBuilder(args)
+    .UseWindowsService()      // <--- important to run as service
+    .ConfigureServices(services =>
+    {
+        services.AddHostedService<NavJobsWorker>();
+    })
+    .Build();
+
+await host.RunAsync();
+
