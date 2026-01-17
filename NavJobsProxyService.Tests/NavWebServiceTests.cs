@@ -4,11 +4,17 @@ using Xunit;
 
 namespace NavJobsProxyService.Tests;
 
+/// <summary>
+/// Integration tests for NAV webservice connection.
+/// These require NAV access and should be run manually with: dotnet test --filter "Category!=Integration"
+/// To run integration tests: dotnet test --filter "Category=Integration"
+/// </summary>
 public class NavWebServiceTests
 {
     private const string NavServiceUrl = "http://localhost:7649/DynamicsNAVCarloTEST/WS/MOTORFORUM%20DRAMMEN/Codeunit/TestNavWs";
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task HelloWorld_ReturnsValidResponse()
     {
         // Arrange
@@ -50,6 +56,7 @@ public class NavWebServiceTests
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task NavService_IsReachable()
     {
         // Arrange
@@ -94,5 +101,44 @@ public class NavWebServiceTests
 
         // Fail the test if there was an exception
         Assert.Null(caughtException);
+    }
+}
+
+/// <summary>
+/// Unit tests that don't require NAV connection
+/// </summary>
+public class UnitTests
+{
+    [Fact]
+    public void ServiceUrl_IsValid()
+    {
+        // Test that the URL format is correct
+        var url = "http://localhost:7649/DynamicsNAVCarloTEST/WS/MOTORFORUM%20DRAMMEN/Codeunit/TestNavWs";
+        var uri = new Uri(url);
+
+        Assert.Equal("localhost", uri.Host);
+        Assert.Equal(7649, uri.Port);
+        Assert.Contains("DynamicsNAVCarloTEST", uri.AbsolutePath);
+    }
+
+    [Fact]
+    public void BasicHttpBinding_CanBeCreated()
+    {
+        // Test that binding configuration is valid
+        var binding = new BasicHttpBinding
+        {
+            MaxBufferSize = int.MaxValue,
+            MaxReceivedMessageSize = int.MaxValue,
+            SendTimeout = TimeSpan.FromMinutes(1),
+            ReceiveTimeout = TimeSpan.FromMinutes(1),
+            Security =
+            {
+                Mode = BasicHttpSecurityMode.TransportCredentialOnly,
+                Transport = { ClientCredentialType = HttpClientCredentialType.Windows }
+            }
+        };
+
+        Assert.Equal(BasicHttpSecurityMode.TransportCredentialOnly, binding.Security.Mode);
+        Assert.Equal(HttpClientCredentialType.Windows, binding.Security.Transport.ClientCredentialType);
     }
 }
