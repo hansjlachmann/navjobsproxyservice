@@ -39,7 +39,7 @@ public class NavWebServiceTests
         try
         {
             // Act
-            var response = await client.HelloWorldAsync("Test from automated test!");
+            var response = await client.HelloWorldAsync("Test from automated test");
 
             // Assert
             Assert.NotNull(response);
