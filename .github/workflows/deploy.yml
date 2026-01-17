@@ -1,0 +1,60 @@
+name: Build and Deploy NavJobsProxyService
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, Windows, nav-proxy-webservice]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish NavJobsProxyService/NavJobsProxyService.csproj -c Release -o ${{ runner.temp }}/publish
+
+      - name: Stop Service
+        run: |
+          $service = Get-Service -Name "NavJobsProxyService" -ErrorAction SilentlyContinue
+          if ($service -and $service.Status -eq 'Running') {
+            Stop-Service -Name "NavJobsProxyService" -Force
+            Start-Sleep -Seconds 2
+          }
+        shell: pwsh
+
+      - name: Deploy files
+        run: |
+          $source = "${{ runner.temp }}/publish/*"
+          $destination = "C:\NavJobsProxyService"
+
+          if (!(Test-Path $destination)) {
+            New-Item -ItemType Directory -Path $destination -Force
+          }
+
+          Copy-Item -Path $source -Destination $destination -Recurse -Force
+        shell: pwsh
+
+      - name: Start Service
+        run: |
+          Start-Service -Name "NavJobsProxyService"
+          Start-Sleep -Seconds 2
+          $service = Get-Service -Name "NavJobsProxyService"
+          Write-Host "Service status: $($service.Status)"
+        shell: pwsh
