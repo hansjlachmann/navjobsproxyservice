@@ -39,12 +39,12 @@ public class NavWebServiceTests
         try
         {
             // Act
-            var response = await client.HelloWorldAsync("Test from automated test");
+            var response = await client.HelloWorldAsync("Test from automated test!");
 
             // Assert
             Assert.NotNull(response);
             Assert.NotNull(response.return_value);
-            Assert.Contains("Test from automated test", response.return_value);
+            Assert.Contains("Test from automated test!", response.return_value);
 
             // Output for visibility
             Console.WriteLine($"NAV Response: {response.return_value}");
