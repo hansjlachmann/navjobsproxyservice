@@ -32,7 +32,7 @@ jobs:
             Stop-Service -Name "NavJobsProxyService" -Force
             Start-Sleep -Seconds 2
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy files
         run: |
@@ -44,7 +44,7 @@ jobs:
           }
 
           Copy-Item -Path $source -Destination $destination -Recurse -Force
-        shell: pwsh
+        shell: powershell
 
       - name: Start Service
         run: |
@@ -52,4 +52,4 @@ jobs:
           Start-Sleep -Seconds 2
           $service = Get-Service -Name "NavJobsProxyService"
           Write-Host "Service status: $($service.Status)"
-        shell: pwsh
+        shell: powershell
