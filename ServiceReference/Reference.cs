@@ -15,11 +15,15 @@ namespace ServiceReference
     [System.ServiceModel.ServiceContractAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", ConfigurationName="ServiceReference.TestNavWs_Port")]
     public interface TestNavWs_Port
     {
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:microsoft-dynamics-schemas/codeunit/TestNavWs:HelloWorld", ReplyAction="*")]
         System.Threading.Tasks.Task<ServiceReference.HelloWorld_Result> HelloWorldAsync(ServiceReference.HelloWorld request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:microsoft-dynamics-schemas/codeunit/TestNavWs:StartJob", ReplyAction="*")]
         System.Threading.Tasks.Task<ServiceReference.StartJob_Result> StartJobAsync(ServiceReference.StartJob request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:microsoft-dynamics-schemas/codeunit/TestNavWs:CheckJob", ReplyAction="*")]
+        System.Threading.Tasks.Task<ServiceReference.CheckJob_Result> CheckJobAsync(ServiceReference.CheckJob request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -102,6 +106,46 @@ namespace ServiceReference
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="CheckJob", WrapperNamespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", IsWrapped=true)]
+    public partial class CheckJob
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", Order=0)]
+        public string jobId;
+        
+        public CheckJob()
+        {
+        }
+        
+        public CheckJob(string jobId)
+        {
+            this.jobId = jobId;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="CheckJob_Result", WrapperNamespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", IsWrapped=true)]
+    public partial class CheckJob_Result
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", Order=0)]
+        public string return_value;
+        
+        public CheckJob_Result()
+        {
+        }
+        
+        public CheckJob_Result(string return_value)
+        {
+            this.return_value = return_value;
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     public interface TestNavWs_PortChannel : ServiceReference.TestNavWs_Port, System.ServiceModel.IClientChannel
     {
@@ -176,6 +220,19 @@ namespace ServiceReference
             ServiceReference.StartJob inValue = new ServiceReference.StartJob();
             inValue.jobId = jobId;
             return ((ServiceReference.TestNavWs_Port)(this)).StartJobAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<ServiceReference.CheckJob_Result> ServiceReference.TestNavWs_Port.CheckJobAsync(ServiceReference.CheckJob request)
+        {
+            return base.Channel.CheckJobAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<ServiceReference.CheckJob_Result> CheckJobAsync(string jobId)
+        {
+            ServiceReference.CheckJob inValue = new ServiceReference.CheckJob();
+            inValue.jobId = jobId;
+            return ((ServiceReference.TestNavWs_Port)(this)).CheckJobAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

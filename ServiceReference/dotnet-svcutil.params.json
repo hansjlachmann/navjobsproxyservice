@@ -8,8 +8,8 @@
     "namespaceMappings": [
       "*, ServiceReference"
     ],
-    "outputFile": "Reference.cs",
-    "targetFramework": "net48",
+    "outputFile": "ServiceReference/Reference.cs",
+    "targetFramework": "net9.0",
     "typeReuseMode": "All"
   }
 }
