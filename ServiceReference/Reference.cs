@@ -15,9 +15,11 @@ namespace ServiceReference
     [System.ServiceModel.ServiceContractAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", ConfigurationName="ServiceReference.TestNavWs_Port")]
     public interface TestNavWs_Port
     {
-        
         [System.ServiceModel.OperationContractAttribute(Action="urn:microsoft-dynamics-schemas/codeunit/TestNavWs:HelloWorld", ReplyAction="*")]
         System.Threading.Tasks.Task<ServiceReference.HelloWorld_Result> HelloWorldAsync(ServiceReference.HelloWorld request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:microsoft-dynamics-schemas/codeunit/TestNavWs:StartJob", ReplyAction="*")]
+        System.Threading.Tasks.Task<ServiceReference.StartJob_Result> StartJobAsync(ServiceReference.StartJob request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -55,6 +57,46 @@ namespace ServiceReference
         }
         
         public HelloWorld_Result(string return_value)
+        {
+            this.return_value = return_value;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="StartJob", WrapperNamespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", IsWrapped=true)]
+    public partial class StartJob
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", Order=0)]
+        public string jobId;
+        
+        public StartJob()
+        {
+        }
+        
+        public StartJob(string jobId)
+        {
+            this.jobId = jobId;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName="StartJob_Result", WrapperNamespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", IsWrapped=true)]
+    public partial class StartJob_Result
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", Order=0)]
+        public string return_value;
+        
+        public StartJob_Result()
+        {
+        }
+        
+        public StartJob_Result(string return_value)
         {
             this.return_value = return_value;
         }
@@ -121,6 +163,19 @@ namespace ServiceReference
             ServiceReference.HelloWorld inValue = new ServiceReference.HelloWorld();
             inValue.inputText = inputText;
             return ((ServiceReference.TestNavWs_Port)(this)).HelloWorldAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<ServiceReference.StartJob_Result> ServiceReference.TestNavWs_Port.StartJobAsync(ServiceReference.StartJob request)
+        {
+            return base.Channel.StartJobAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<ServiceReference.StartJob_Result> StartJobAsync(string jobId)
+        {
+            ServiceReference.StartJob inValue = new ServiceReference.StartJob();
+            inValue.jobId = jobId;
+            return ((ServiceReference.TestNavWs_Port)(this)).StartJobAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

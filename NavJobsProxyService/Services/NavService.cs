@@ -36,11 +36,7 @@ public class NavService : INavService
         {
             client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
             client.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
-
-            _logger.LogInformation("Calling NAV HelloWorld with input: {input}", inputText);
             var result = await client.HelloWorldAsync(inputText);
-            _logger.LogInformation("NAV HelloWorld response: {response}", result.return_value);
-
             return result.return_value;
         }
         finally
@@ -53,6 +49,22 @@ public class NavService : INavService
             {
                 client.Abort();
             }
+        }
+    }
+    public async Task<string> StartJobAsync(string jobId)
+    {
+        var client = new TestNavWs_PortClient(_binding, _endpoint);
+        try
+        {
+            client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
+            client.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
+            var result = await client.StartJobAsync(jobId);
+            return result.return_value;
+        }
+        finally
+        {
+            try { await client.CloseAsync(); }
+            catch { client.Abort(); }
         }
     }
 }
