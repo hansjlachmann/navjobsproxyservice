@@ -76,13 +76,17 @@ namespace ServiceReference
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", Order=0)]
         public string jobId;
         
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:microsoft-dynamics-schemas/codeunit/TestNavWs", Order=1)]
+        public string inputJson;
+        
         public StartJob()
         {
         }
         
-        public StartJob(string jobId)
+        public StartJob(string jobId, string inputJson)
         {
             this.jobId = jobId;
+            this.inputJson = inputJson;
         }
     }
     
@@ -215,10 +219,11 @@ namespace ServiceReference
             return base.Channel.StartJobAsync(request);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference.StartJob_Result> StartJobAsync(string jobId)
+        public System.Threading.Tasks.Task<ServiceReference.StartJob_Result> StartJobAsync(string jobId, string inputJson)
         {
             ServiceReference.StartJob inValue = new ServiceReference.StartJob();
             inValue.jobId = jobId;
+            inValue.inputJson = inputJson;
             return ((ServiceReference.TestNavWs_Port)(this)).StartJobAsync(inValue);
         }
         
