@@ -51,14 +51,14 @@ public class NavService : INavService
             }
         }
     }
-    public async Task<string> StartJobAsync(string jobId)
+    public async Task<string> StartJobAsync(string jobId, string inputJson)
     {
         var client = new TestNavWs_PortClient(_binding, _endpoint);
         try
         {
             client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
             client.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
-            var result = await client.StartJobAsync(jobId);
+            var result = await client.StartJobAsync(jobId, inputJson);
             return result.return_value;
         }
         finally
@@ -67,6 +67,9 @@ public class NavService : INavService
             catch { client.Abort(); }
         }
     }
+
+
+
     public async Task<string> CheckJobAsync(string jobId)
 {
     var client = new TestNavWs_PortClient(_binding, _endpoint);
@@ -85,6 +88,7 @@ public class NavService : INavService
     {
         try { await client.CloseAsync(); }
         catch { client.Abort(); }
+
     }
 }
 

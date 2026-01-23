@@ -37,7 +37,7 @@ public class NavController : ControllerBase
         try
         {
             _logger.LogInformation("Received StartJob request with jobId: {jobId}", request.JobId);
-            var result = await _navService.StartJobAsync(request.JobId);
+            var result = await _navService.StartJobAsync(request.JobId, request.InputJson);
             return Ok(new { Result = result });
         }
         catch (Exception ex)
@@ -76,7 +76,9 @@ public class HelloWorldResponse
 public class StartJobRequest
 {
     public string JobId { get; set; } = string.Empty;
+    public string InputJson { get; set; } = string.Empty;
 }
+
 
 public class StartJobResponse
 {
