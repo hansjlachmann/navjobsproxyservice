@@ -56,9 +56,44 @@ public class NavController : ControllerBase
             return Ok(new CheckJobResponse { Result = result });
         }
         catch (Exception ex)
-        {
+           {
             _logger.LogError(ex, "Error calling NAV CheckJob");
             return StatusCode(500, new { Error = "Failed to call NAV service", Details = ex.Message });
+        }
+    }
+
+    [HttpGet("job/{jobId}/pdf")]
+    public async Task<IActionResult> GetJobPdf(string jobId)
+    {
+        try
+        {
+            // Get the PDF path from NAV (stored in job log)
+            var jobResult = await _navService.CheckJobAsync(jobId);
+            
+            // Parse the PDF path from result (or add a new NAV method to get just the path)
+            // For now, assuming NAV stores the path and we can retrieve it
+            
+            var pdfPath = $@"C:\ProgramData\Microsoft\Microsoft Dynamics NAV\60\Server\MicrosoftDynamicsNavServer$CarloTEST\users\MOTORDATA\hjl_admin\TEMP\{jobId}-CustomerBalanceToDate.pdf";
+            
+            if (!System.IO.File.Exists(pdfPath))
+            {
+                return NotFound(new { Error = "PDF not found", Path = pdfPath });
+            }
+            
+            var pdfBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
+            var base64 = Convert.ToBase64String(pdfBytes);
+            
+            return Ok(new GetJobPdfResponse 
+            { 
+                JobId = jobId,
+                FileName = Path.GetFileName(pdfPath),
+                Base64 = base64 
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting PDF for job {jobId}", jobId);
+            return StatusCode(500, new { Error = "Failed to get PDF", Details = ex.Message });
         }
     }
 }
@@ -89,3 +124,11 @@ public class CheckJobResponse
 {
     public string Result { get; set; } = string.Empty;
 }
+
+public class GetJobPdfResponse
+{
+    public string JobId { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+    public string Base64 { get; set; } = string.Empty;
+}
+
