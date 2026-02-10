@@ -51,9 +51,13 @@ public class NavService : INavService
             }
         }
     }
-    public async Task<string> StartJobAsync(string jobId, string inputJson)
+    public async Task<string> StartJobAsync(string jobId, string companyName,string inputJson)
     {
-        var client = new TestNavWs_PortClient(_binding, _endpoint);
+        // Build endpoint URL with company name
+        var endpointUrl = $"http://localhost:7649/DynamicsNAVCarloTEST/WS/{companyName}/Codeunit/TestNavWs";
+        var endpoint = new EndpointAddress(endpointUrl);
+
+        var client = new TestNavWs_PortClient(_binding, endpoint);
         try
         {
             client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
@@ -67,29 +71,25 @@ public class NavService : INavService
             catch { client.Abort(); }
         }
     }
-
-
-
     public async Task<string> CheckJobAsync(string jobId)
-{
-    var client = new TestNavWs_PortClient(_binding, _endpoint);
-    try
     {
-        client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
-        client.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
+        var client = new TestNavWs_PortClient(_binding, _endpoint);
+        try
+        {
+            client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
+            client.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
 
-        _logger.LogInformation("Calling NAV CheckJob with jobId: {jobId}", jobId);
-        var result = await client.CheckJobAsync(jobId);
-        _logger.LogInformation("NAV CheckJob response: {response}", result.return_value);
+            _logger.LogInformation("Calling NAV CheckJob with jobId: {jobId}", jobId);
+            var result = await client.CheckJobAsync(jobId);
+            _logger.LogInformation("NAV CheckJob response: {response}", result.return_value);
 
-        return result.return_value;
+            return result.return_value;
+        }
+        finally
+        {
+            try { await client.CloseAsync(); }
+            catch { client.Abort(); }
+
+        }
     }
-    finally
-    {
-        try { await client.CloseAsync(); }
-        catch { client.Abort(); }
-
-    }
-}
-
 }
