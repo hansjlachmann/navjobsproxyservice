@@ -1,5 +1,6 @@
 using System.ServiceModel;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ServiceReference;
 
 namespace NavJobsProxyService.Services;
@@ -8,11 +9,12 @@ public class NavService : INavService
 {
     private readonly ILogger<NavService> _logger;
     private readonly BasicHttpBinding _binding;
-    private readonly EndpointAddress _endpoint;
+    private readonly string _baseUrl;
 
-    public NavService(ILogger<NavService> logger)
+    public NavService(ILogger<NavService> logger, IOptions<NavServiceOptions> options)
     {
         _logger = logger;
+        _baseUrl = options.Value.BaseUrl;
 
         _binding = new BasicHttpBinding
         {
@@ -24,13 +26,18 @@ public class NavService : INavService
                 Transport = { ClientCredentialType = HttpClientCredentialType.Windows }
             }
         };
+    }
 
-        _endpoint = new EndpointAddress("http://localhost:7649/DynamicsNAVCarloTEST/WS/MOTORFORUM DRAMMEN/Codeunit/TestNavWs?wsdl");
+    private EndpointAddress GetEndpoint(string companyName)
+    {
+        var url = _baseUrl.Replace("{companyName}", companyName);
+        return new EndpointAddress(url);
     }
 
     public async Task<string> HelloWorldAsync(string inputText)
     {
-        var client = new TestNavWs_PortClient(_binding, _endpoint);
+        var endpoint = GetEndpoint("MOTORFORUM DRAMMEN");
+        var client = new TestNavWs_PortClient(_binding, endpoint);
 
         try
         {
@@ -51,11 +58,10 @@ public class NavService : INavService
             }
         }
     }
-    public async Task<string> StartJobAsync(string jobId, string companyName,string inputJson)
+    public async Task<string> StartJobAsync(string jobId, string companyName, string inputJson)
     {
-        // Build endpoint URL with company name
-        var endpointUrl = $"http://localhost:7649/DynamicsNAVCarloTEST/WS/{companyName}/Codeunit/TestNavWs";
-        var endpoint = new EndpointAddress(endpointUrl);
+        var endpoint = GetEndpoint(companyName);
+        _logger.LogInformation("Calling NAV StartJob at {url} with jobId: {jobId}", endpoint.Uri, jobId);
 
         var client = new TestNavWs_PortClient(_binding, endpoint);
         try
@@ -73,7 +79,8 @@ public class NavService : INavService
     }
     public async Task<string> CheckJobAsync(string jobId)
     {
-        var client = new TestNavWs_PortClient(_binding, _endpoint);
+        var endpoint = GetEndpoint("MOTORFORUM DRAMMEN");
+        var client = new TestNavWs_PortClient(_binding, endpoint);
         try
         {
             client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
