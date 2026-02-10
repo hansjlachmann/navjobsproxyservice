@@ -2,5 +2,5 @@ namespace NavJobsProxyService.Services;
 
 public class NavServiceOptions
 {
-    public string BaseUrl { get; set; } = string.Empty;
+    public Dictionary<string, string> Companies { get; set; } = new();
 }

@@ -9,12 +9,12 @@ public class NavService : INavService
 {
     private readonly ILogger<NavService> _logger;
     private readonly BasicHttpBinding _binding;
-    private readonly string _baseUrl;
+    private readonly Dictionary<string, string> _companies;
 
     public NavService(ILogger<NavService> logger, IOptions<NavServiceOptions> options)
     {
         _logger = logger;
-        _baseUrl = options.Value.BaseUrl;
+        _companies = options.Value.Companies;
 
         _binding = new BasicHttpBinding
         {
@@ -30,7 +30,10 @@ public class NavService : INavService
 
     private EndpointAddress GetEndpoint(string companyName)
     {
-        var url = _baseUrl.Replace("{companyName}", companyName);
+        if (!_companies.TryGetValue(companyName, out var url))
+        {
+            throw new ArgumentException($"Company '{companyName}' not found in configuration");
+        }
         return new EndpointAddress(url);
     }
 
