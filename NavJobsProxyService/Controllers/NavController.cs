@@ -48,17 +48,17 @@ public class NavController : ControllerBase
             return StatusCode(500, new { Error = "Failed to call NAV service", Details = ex.Message });
         }
     }
-    [HttpGet("checkjob/{jobId}")]
-    public async Task<IActionResult> CheckJob(string jobId)
+    [HttpPost("checkjob")]
+    public async Task<IActionResult> CheckJob([FromBody] CheckJobRequest request)
     {
         try
         {
-            _logger.LogInformation("Received CheckJob request with jobId: {jobId}", jobId);
-            var result = await _navService.CheckJobAsync(jobId);
+            _logger.LogInformation("Received CheckJob request with jobId: {jobId} for company: {company}", request.JobId, request.CompanyName);
+            var result = await _navService.CheckJobAsync(request.JobId, request.CompanyName);
             return Ok(new CheckJobResponse { Result = result });
         }
         catch (Exception ex)
-           {
+        {
             _logger.LogError(ex, "Error calling NAV CheckJob");
             return StatusCode(500, new { Error = "Failed to call NAV service", Details = ex.Message });
         }
@@ -146,6 +146,12 @@ public class StartJobRequest
 public class StartJobResponse
 {
     public string Result { get; set; } = string.Empty;
+}
+
+public class CheckJobRequest
+{
+    public string JobId { get; set; } = string.Empty;
+    public string CompanyName { get; set; } = string.Empty;
 }
 
 public class CheckJobResponse

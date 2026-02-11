@@ -80,16 +80,17 @@ public class NavService : INavService
             catch { client.Abort(); }
         }
     }
-    public async Task<string> CheckJobAsync(string jobId)
+    public async Task<string> CheckJobAsync(string jobId, string companyName)
     {
-        var endpoint = GetEndpoint("MOTORFORUM DRAMMEN");
+        var endpoint = GetEndpoint(companyName);
+        _logger.LogInformation("Calling NAV CheckJob at {url} with jobId: {jobId}", endpoint.Uri, jobId);
+
         var client = new TestNavWs_PortClient(_binding, endpoint);
         try
         {
             client.ClientCredentials.Windows.ClientCredential = System.Net.CredentialCache.DefaultNetworkCredentials;
             client.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
 
-            _logger.LogInformation("Calling NAV CheckJob with jobId: {jobId}", jobId);
             var result = await client.CheckJobAsync(jobId);
             _logger.LogInformation("NAV CheckJob response: {response}", result.return_value);
 
@@ -99,7 +100,6 @@ public class NavService : INavService
         {
             try { await client.CloseAsync(); }
             catch { client.Abort(); }
-
         }
     }
 }
