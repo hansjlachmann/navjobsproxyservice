@@ -65,48 +65,49 @@ public class NavController : ControllerBase
     }
 
 
-    [HttpGet("job/{jobId}/pdf")]
-    public async Task<IActionResult> GetJobPdf(string jobId)
+    [HttpPost("job/pdf")]
+    public async Task<IActionResult> GetJobPdf([FromBody] GetJobPdfRequest request)
     {
         try
         {
-            var pdfPath = $@"C:\ProgramData\Microsoft\Microsoft Dynamics NAV\60\Server\MicrosoftDynamicsNavServer$CarloTEST\users\MOTORDATA\hjl_admin\TEMP\{jobId}-CustomerBalanceToDate.pdf";
-            
-            _logger.LogInformation("Getting PDF for job {jobId} from {path}", jobId, pdfPath);
-            
+            var pdfPath = $@"C:\ProgramData\Microsoft\Microsoft Dynamics NAV\60\Server\MicrosoftDynamicsNavServer$CarloTEST\users\MOTORDATA\hjl_admin\TEMP\{request.JobId}-CustomerBalanceToDate.pdf";
+
+            _logger.LogInformation("Getting PDF for job {jobId} company {company} from {path}", request.JobId, request.CompanyName, pdfPath);
+
             if (!System.IO.File.Exists(pdfPath))
             {
                 return NotFound(new { Error = "PDF not found", Path = pdfPath });
             }
-            
+
             // Wait for file to be available (not locked)
             var maxRetries = 10;
             var delayMs = 500;
-            
+
             for (int i = 0; i < maxRetries; i++)
             {
                 if (IsFileReady(pdfPath))
                 {
                     var pdfBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
                     var base64 = Convert.ToBase64String(pdfBytes);
-                    
-                    return Ok(new GetJobPdfResponse 
-                    { 
-                        JobId = jobId,
+
+                    return Ok(new GetJobPdfResponse
+                    {
+                        JobId = request.JobId,
+                        CompanyName = request.CompanyName,
                         FileName = Path.GetFileName(pdfPath),
-                        Base64 = base64 
+                        Base64 = base64
                     });
                 }
-                
+
                 _logger.LogInformation("PDF file is locked, retry {retry}/{maxRetries}", i + 1, maxRetries);
                 await Task.Delay(delayMs);
             }
-            
+
             return StatusCode(503, new { Error = "PDF file is locked", Message = "File is still being generated, try again later" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting PDF for job {jobId}", jobId);
+            _logger.LogError(ex, "Error getting PDF for job {jobId}", request.JobId);
             return StatusCode(500, new { Error = "Failed to get PDF", Details = ex.Message });
         }
     }
@@ -159,9 +160,16 @@ public class CheckJobResponse
     public string Result { get; set; } = string.Empty;
 }
 
+public class GetJobPdfRequest
+{
+    public string JobId { get; set; } = string.Empty;
+    public string CompanyName { get; set; } = string.Empty;
+}
+
 public class GetJobPdfResponse
 {
     public string JobId { get; set; } = string.Empty;
+    public string CompanyName { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
     public string Base64 { get; set; } = string.Empty;
 }
