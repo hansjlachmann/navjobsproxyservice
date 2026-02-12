@@ -93,6 +93,17 @@ public class NavController : ControllerBase
                     var pdfBytes = await System.IO.File.ReadAllBytesAsync(request.PdfPath);
                     var base64 = Convert.ToBase64String(pdfBytes);
 
+                    // Delete PDF after successful read
+                    try
+                    {
+                        System.IO.File.Delete(request.PdfPath);
+                        _logger.LogInformation("Deleted PDF file: {path}", request.PdfPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to delete PDF file: {path}", request.PdfPath);
+                    }
+
                     return Ok(new GetJobPdfResponse
                     {
                         JobId = request.JobId,
