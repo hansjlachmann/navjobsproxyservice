@@ -70,13 +70,16 @@ public class NavController : ControllerBase
     {
         try
         {
-            var pdfPath = $@"C:\ProgramData\Microsoft\Microsoft Dynamics NAV\60\Server\MicrosoftDynamicsNavServer$CarloTEST\users\MOTORDATA\hjl_admin\TEMP\{request.JobId}-CustomerBalanceToDate.pdf";
-
-            _logger.LogInformation("Getting PDF for job {jobId} company {company} from {path}", request.JobId, request.CompanyName, pdfPath);
-
-            if (!System.IO.File.Exists(pdfPath))
+            if (string.IsNullOrWhiteSpace(request.PdfPath))
             {
-                return NotFound(new { Error = "PDF not found", Path = pdfPath });
+                return BadRequest(new { Error = "PdfPath is required" });
+            }
+
+            _logger.LogInformation("Getting PDF for job {jobId} company {company} from {path}", request.JobId, request.CompanyName, request.PdfPath);
+
+            if (!System.IO.File.Exists(request.PdfPath))
+            {
+                return NotFound(new { Error = "PDF not found", Path = request.PdfPath });
             }
 
             // Wait for file to be available (not locked)
@@ -85,16 +88,16 @@ public class NavController : ControllerBase
 
             for (int i = 0; i < maxRetries; i++)
             {
-                if (IsFileReady(pdfPath))
+                if (IsFileReady(request.PdfPath))
                 {
-                    var pdfBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
+                    var pdfBytes = await System.IO.File.ReadAllBytesAsync(request.PdfPath);
                     var base64 = Convert.ToBase64String(pdfBytes);
 
                     return Ok(new GetJobPdfResponse
                     {
                         JobId = request.JobId,
                         CompanyName = request.CompanyName,
-                        FileName = Path.GetFileName(pdfPath),
+                        FileName = Path.GetFileName(request.PdfPath),
                         Base64 = base64
                     });
                 }
@@ -164,6 +167,7 @@ public class GetJobPdfRequest
 {
     public string JobId { get; set; } = string.Empty;
     public string CompanyName { get; set; } = string.Empty;
+    public string PdfPath { get; set; } = string.Empty;
 }
 
 public class GetJobPdfResponse
