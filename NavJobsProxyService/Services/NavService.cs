@@ -15,17 +15,20 @@ public class NavService : INavService
     {
         _logger = logger;
         _companies = options.Value.Companies;
+        var timeoutMinutes = options.Value.TimeoutMinutes;
 
         _binding = new BasicHttpBinding
         {
-            SendTimeout = TimeSpan.FromMinutes(1),
-            ReceiveTimeout = TimeSpan.FromMinutes(1),
+            SendTimeout = TimeSpan.FromMinutes(timeoutMinutes),
+            ReceiveTimeout = TimeSpan.FromMinutes(timeoutMinutes),
             Security =
             {
                 Mode = BasicHttpSecurityMode.TransportCredentialOnly,
                 Transport = { ClientCredentialType = HttpClientCredentialType.Windows }
             }
         };
+
+        _logger.LogInformation("NavService initialized with timeout: {timeout} minutes", timeoutMinutes);
     }
 
     private EndpointAddress GetEndpoint(string companyName)
